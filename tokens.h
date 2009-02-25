@@ -2,7 +2,8 @@
 #define __TOKENS_H__
 
 enum {
-	LPAREN, RPAREN, LBRACKET, RBRACKET, WORD, DOLDOL, SPACES, COMMA, FOREACH,
+	LPAREN, RPAREN, LBRACKET, RBRACKET, WORD, DOLDOL, SPACES, COMMA, 
+	FOREACH,
 };
 
 char *token_list[] = { "left parenthesis", 

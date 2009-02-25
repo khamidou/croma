@@ -22,13 +22,13 @@ void expect(int t)
 
 }
 
-int init_parser(void)
+void init_parser(void)
 {
 	TAILQ_INIT(&blocks_head);
 }
 
 
-int yyparse(void)
+void yyparse(void)
 {
 	int t = yylex();
 
@@ -59,20 +59,20 @@ void foreach_expr(void)
 	parse_block(b);
 
 	char *p = b->parameters;
-	char *t = b->contents;
-	if (t == NULL)
+	char *c = b->contents;
+	if (c == NULL)
 		abort("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
 
 	while(strcmp(p, "\0") != 0) {
-		while(t != '\0') {
-			if (*t == '$' && *t+1 == '$') {
+		while(c != '\0') {
+			if (*c == '$' && *c+1 == '$') {
 				printf("%s", p);
-			t++; /* skip them second '$' */
+			c++; /* skip them second '$' */
 			} else {
-				printf("%c", *t);
+				printf("%c", *c);
 			}
 			
-			t++;
+			c++;
 		}
 		p++;
 	}
@@ -85,6 +85,8 @@ void parse_arglist(struct croma_block *b)
 		abort("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
 	b->parameters = malloc(16*sizeof(char *));
+	char *s = b->parameters;
+
 	int i;
 	int t = yylex();
 
@@ -95,13 +97,12 @@ void parse_arglist(struct croma_block *b)
 	*/
 	for (i = 0; i < 16; i++)
 	{
-		b->parameters + i = strndup(yytext, MAX_PARAM_LEN);
+		*s++ = strndup(yytext, MAX_PARAM_LEN);
 		expect(COMMA);
 		expect(WORD);
 	}
 
-	i++;
-	b->parameters + i = "\0";
+	*s++ = "\0";
 
 	expect(RPAREN);
 
