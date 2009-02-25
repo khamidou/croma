@@ -2,7 +2,7 @@
   macro.c - helper routines for blocks.
  */
 
-#include "parse.h"
+#include "macro.h"
 
 struct croma_block* alloc_and_insert_block(void)
 {

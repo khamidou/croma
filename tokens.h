@@ -2,7 +2,7 @@
 #define __TOKENS_H__
 
 enum {
-	LPAREN, RPAREN, LBRACKET, RBRACKET, WORD, DOLDOL, SPACES, FOREACH,
+	LPAREN, RPAREN, LBRACKET, RBRACKET, WORD, DOLDOL, SPACES, COMMA, FOREACH,
 };
 
 char *token_list[] = { "left parenthesis", 
@@ -12,8 +12,10 @@ char *token_list[] = { "left parenthesis",
 		       "word",
 		       "$$ sign",
 		       "spaces",
+		       "comma",
 		       "foreach", };
 
 extern int yylex(void);
+extern char *yytext;
 
 #endif

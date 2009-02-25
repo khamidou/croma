@@ -1,6 +1,10 @@
 #ifndef __CROMA_MACRO__
 #define __CROMA_MACRO__
 
+#include <stdlib.h>
+
+#include "queue.h"
+
 /*
   A block is the memory representation of a {{ }} block, along with its 
   parameters.
