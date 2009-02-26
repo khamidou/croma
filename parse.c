@@ -1,23 +1,27 @@
+#include <string.h>
 #include "parse.h"
 
-void abort(char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
+extern char *strndup (__const char *__string, size_t __n);
+extern char *yytext;
 
-	fprintf(stderr, fmt, ap);
+char *token_list[] = { "left parenthesis", 
+		       "right parenthesis", 
+		       "{{", 
+		       "}}", 
+		       "word",
+		       "$$ sign",
+		       "spaces",
+		       "comma",
+		       "foreach", NULL};
 
-	va_end(ap);
-
-	exit(EXIT_FAILURE);
-}
 
 void expect(int t)
 {
 	int c = yylex();
 	if (c != t) {
-		fprintf(stderr, "Expected token %s in input, got %s (%s).\n", token_list[t], token_list[c], yytext);
-		exit(EXIT_FAILURE);
+		fail("Expected token %s in input, got %s (%s).\n", 
+		     token_list[t], token_list[c], yytext);
+		fail("unexpected token : %s \n", yytext);
 	}
 
 }
@@ -39,7 +43,7 @@ void yyparse(void)
 		break;
 		
 	default:
-		abort("garbage somewhere in input");
+		fail("garbage somewhere in input.\n");
 	}
 }
 
@@ -47,8 +51,6 @@ void yyparse(void)
 void foreach_expr(void)
 {
 	struct croma_block *b = alloc_and_insert_block();
-
-	int t = yylex();
 
 	expect(LPAREN);
 
@@ -58,12 +60,12 @@ void foreach_expr(void)
 
 	parse_block(b);
 
-	char *p = b->parameters;
+	char **p = b->parameters;
 	char *c = b->contents;
 	if (c == NULL)
-		abort("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
+		fail("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
 
-	while(strcmp(p, "\0") != 0) {
+	while(strcmp(*p, "\0") != 0) {
 		while(c != '\0') {
 			if (*c == '$' && *c+1 == '$') {
 				printf("%s", p);
@@ -82,13 +84,12 @@ void foreach_expr(void)
 void parse_arglist(struct croma_block *b)
 {
 	if (b == NULL)
-		abort("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
+		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
 	b->parameters = malloc(16*sizeof(char *));
-	char *s = b->parameters;
+	char **p = b->parameters;
 
 	int i;
-	int t = yylex();
 
 	expect(WORD);
 
@@ -97,12 +98,12 @@ void parse_arglist(struct croma_block *b)
 	*/
 	for (i = 0; i < 16; i++)
 	{
-		*s++ = strndup(yytext, MAX_PARAM_LEN);
+		*p++ = strndup(yytext, MAX_PARAM_LEN);
 		expect(COMMA);
 		expect(WORD);
 	}
 
-	*s++ = "\0";
+	*p++ = "\0";
 
 	expect(RPAREN);
 
@@ -113,7 +114,7 @@ void parse_block(struct croma_block *b)
 	int i = 0; /* FIXME : realloc() b->contents on the fly*/
 	
 	if (b == NULL) 
-		abort("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
+		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
 	/* Copy the whole buffer in b->contents.
 	   FIXME: expand macros before copying contents.
@@ -121,7 +122,8 @@ void parse_block(struct croma_block *b)
 	int t = yylex();
 
 	while (t != RBRACKET && i < 8192) {
-		i += strncat(b->contents, yytext, 8192 - i);
+		strncat(b->contents, yytext, 8192 - i);
+		i += strlen(yytext);
 		yylex();
 	}
 

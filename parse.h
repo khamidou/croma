@@ -4,14 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 
+#include "errors.h"
 #include "tokens.h"
 #include "macro.h"
 
 #define MAX_PARAM_LEN 4096
 
-void abort(char *fmt, ...);
 void init_parser(void);
 void yyparse(void);
 

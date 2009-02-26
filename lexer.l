@@ -16,11 +16,12 @@ int yywrap()
 
 %%
 
-"(" 		{ return LPAREN; }
-")" 		{ return RPAREN; }
-"{{" 		{ return LBRACKET; }
-"}}" 		{ return RBRACKET; }
-"foreach"       { return FOREACH; }
-[:alpha:]+ 	{ return WORD; };
-"$$" 		{ return DOLDOL; }
-[ \t\n]+ 	{ return SPACES; }
+"(" 		{ return LPAREN; 	}
+")" 		{ return RPAREN;	}
+"{{" 		{ return LBRACKET;	}
+"}}" 		{ return RBRACKET;	}
+","             { return COMMA;		}
+"foreach"       { return FOREACH;	}
+[a-zA-Z0-9]+ 	{ return WORD;		}
+"$$" 		{ return DOLDOL;	}
+[ \t\n]+ 	/* { return SPACES;	} */

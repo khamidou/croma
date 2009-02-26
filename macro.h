@@ -2,7 +2,7 @@
 #define __CROMA_MACRO__
 
 #include <stdlib.h>
-
+#include "errors.h"
 #include "queue.h"
 
 /*

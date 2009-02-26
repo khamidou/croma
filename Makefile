@@ -1,5 +1,5 @@
-OBJS=croma.o lex.yy.o parse.o macro.o
-CFLAGS=-c
+OBJS=croma.o lex.yy.o parse.o macro.o errors.o
+CFLAGS=-c -g
 LDFLAGS=-o croma
 
 croma: $(OBJS)
@@ -18,6 +18,10 @@ lex.yy.o: lexer.l
 	lex lexer.l
 	$(CC) $(CFLAGS) lex.yy.c
 
+errors.o: errors.c errors.h	
+	$(CC) $(CFLAGS) errors.c
+
 clean:
 	rm *.o
 	rm *~
+	rm croma
