@@ -16,7 +16,7 @@ int yywrap()
 
 %%
 
-"(" 		{ return LPAREN; 	}
+"(" 		{ return LPAREN;	}
 ")" 		{ return RPAREN;	}
 "{{" 		{ return LBRACKET;	}
 "}}" 		{ return RBRACKET;	}

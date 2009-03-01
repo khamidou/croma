@@ -86,8 +86,12 @@ void parse_arglist(struct croma_block *b)
 	if (b == NULL)
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
-	b->parameters = malloc(16*sizeof(char *));
-	char **p = b->parameters;
+//	b->parameters = malloc(16*sizeof(char *));
+
+/*	if (b->parameters == NULL)
+		fail("Unable to allocate enough memory !");
+*/
+//	char **p = b->parameters;
 
 	int i;
 
@@ -98,12 +102,24 @@ void parse_arglist(struct croma_block *b)
 	*/
 	for (i = 0; i < 16; i++)
 	{
-		*p++ = strndup(yytext, MAX_PARAM_LEN);
-		expect(COMMA);
+		b->parameters[i] = strdup(yytext);
+		if (b->parameters[i] == NULL)
+			fail("Unable to alloc memory for text %s\n", yytext);
+
+		int c = yylex();
+		if (c == RPAREN)
+			return;
+		else if (c != COMMA) {
+			puts("Expected a comma in parameter list");
+			exit(-1);
+		}
+
 		expect(WORD);
+
+		
 	}
 
-	*p++ = "\0";
+//	*p++ = "\0";
 
 	expect(RPAREN);
 
@@ -116,6 +132,11 @@ void parse_block(struct croma_block *b)
 	if (b == NULL) 
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
+	b->contents = malloc(8192);
+
+	if (b->contents == NULL)
+		fail("Unable to alloc memory for input buffer", __FILE__, __LINE__);
+
 	/* Copy the whole buffer in b->contents.
 	   FIXME: expand macros before copying contents.
 	 */
@@ -124,7 +145,7 @@ void parse_block(struct croma_block *b)
 	while (t != RBRACKET && i < 8192) {
 		strncat(b->contents, yytext, 8192 - i);
 		i += strlen(yytext);
-		yylex();
+		t = yylex();
 	}
 
 	return;

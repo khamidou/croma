@@ -14,7 +14,8 @@
 
 struct croma_block {
 	char *name;
-	char **parameters;
+//	char **parameters;
+	char *parameters[16];
 	char *contents;
 	TAILQ_ENTRY(croma_block) blocks;
 };
