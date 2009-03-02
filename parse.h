@@ -15,6 +15,7 @@ void init_parser(void);
 void yyparse(void);
 
 void foreach_expr(void);
+void define_expr(void);
 void parse_arglist(struct croma_block *b);
 void parse_block(struct croma_block *b);
 

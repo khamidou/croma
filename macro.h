@@ -12,12 +12,20 @@
 
 */
 
+#include "queue.h"
+
+struct croma_arg {
+	char *name;
+	char *value;
+	TAILQ_ENTRY(croma_arg) params;
+};
+
 struct croma_block {
 	char *name;
 //	char **parameters;
-	char *parameters[16];
 	char *contents;
 	int contents_length;
+	TAILQ_HEAD(croma_args_head, croma_arg) args_head;
 	TAILQ_ENTRY(croma_block) blocks;
 };
 
@@ -32,5 +40,7 @@ TAILQ_HEAD(croma_blocks_head, croma_block) blocks_head;
 */
 
 struct croma_block* alloc_and_insert_block(void);
+struct croma_arg *alloc_and_insert_arg(struct croma_block *b);
+void free_block(struct croma_block *b);
 
 #endif

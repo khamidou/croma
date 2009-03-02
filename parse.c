@@ -18,7 +18,6 @@ char *token_list[] = { "left parenthesis",
 		       "foreach", 
 		       "define", NULL};
 
-
 void expect(int t)
 {
 	int c = yylex();
@@ -67,9 +66,12 @@ void yyparse(void)
 
 void foreach_expr(void)
 {
-	struct croma_block *b = alloc_and_insert_block();
-	b->name = strdup("foreach block"); /* FIXME : just to keep free_block() happy */
+	struct croma_block *b = malloc(sizeof(struct croma_block));
 
+	if (b == NULL)
+		fail("Unable to alloc() memory");
+
+	TAILQ_INIT(&b->args_head);
 	expect(LPAREN);
 
 	parse_arglist(b);
@@ -78,18 +80,18 @@ void foreach_expr(void)
 
 	parse_block(b);
 
-	char **p = b->parameters;
+	struct croma_arg *a;
 
 	if (b->contents == NULL)
 		fail("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
 
-	while(*p != NULL) {
+	TAILQ_FOREACH(a, &b->args_head, params) {
 		char *c = b->contents;
 		int i = 0;
 
 		for(i = 0; i < b->contents_length && c != NULL; i++) {
 			if (*c == '$' && *(c+1) == '$') {
-				printf("%s", *p);
+				printf("%s", a->value);
 				c++; /* skip the second '$' */
 			} else {
 				printf("%c", *c);
@@ -98,7 +100,6 @@ void foreach_expr(void)
 			c++;
 		}
 
-		p++;
 	}
 
 	free_block(b);
@@ -106,7 +107,14 @@ void foreach_expr(void)
 
 void define_expr(void)
 {
+	struct croma_block *b = alloc_and_insert_block();
 
+	expect(WORD);
+	b->name = strdup(yytext);
+
+	expect(LPAREN);
+	parse_arglist(b);
+	
 }
 
 void parse_arglist(struct croma_block *b)
@@ -114,36 +122,23 @@ void parse_arglist(struct croma_block *b)
 	if (b == NULL)
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
-//	b->parameters = malloc(16*sizeof(char *));
-
-/*	if (b->parameters == NULL)
-		fail("Unable to allocate enough memory !");
-*/
-//	char **p = b->parameters;
-
-	int i;
-
 	int c = yylex();
 
-	if (c == RPAREN)
-		return;
+	struct croma_arg * arg;
 
-	/* FIXME : use realloc to implement infinite length parameter
-	   lists
-	*/
-	for (i = 0; i < 16; i++)
+	while(c != RPAREN)
 	{
-		b->parameters[i] = strdup(yytext);
-		if (b->parameters[i] == NULL)
-			fail("Unable to alloc memory for text %s\n", yytext);
-
-		c = yylex();
-
-		while (c == SPACES)
+		while (c == SPACES) {
 			c = yylex();
+		}
 
 		switch(c) {
 		case WORD:
+			arg = alloc_and_insert_arg(b);
+			arg->value = strdup(yytext);
+			if (arg->value == NULL)
+				fail("Unable to allocate memory");
+			
 			continue;
 			break;
 
@@ -156,11 +151,8 @@ void parse_arglist(struct croma_block *b)
 			break;
 		}
 
+		c = yylex();
 	}
-
-//	*p++ = "\0";
-
-	expect(RPAREN);
 
 }
 
