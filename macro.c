@@ -15,3 +15,13 @@ struct croma_block* alloc_and_insert_block(void)
 
 	return block;
 }
+
+void free_block(struct croma_block *b)
+{
+	if (b == NULL)
+		return;
+
+	free(b->contents);
+	free(b->name);
+	TAILQ_REMOVE(&blocks_head, b, blocks);
+}

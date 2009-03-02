@@ -3,6 +3,8 @@
 
 extern char *strndup (__const char *__string, size_t __n);
 extern char *yytext;
+extern int yylineno;
+extern FILE *yyin;
 
 char *token_list[] = { "left parenthesis", 
 		       "right parenthesis", 
@@ -12,16 +14,24 @@ char *token_list[] = { "left parenthesis",
 		       "$$ sign",
 		       "spaces",
 		       "comma",
+		       "quote",
 		       "foreach", NULL};
 
 
 void expect(int t)
 {
 	int c = yylex();
+
+	/* Eat up spaces during parsing. */
+	while(c == SPACES)
+	{
+		c = yylex();
+	}
+	
 	if (c != t) {
-		fail("Expected token %s in input, got %s (%s).\n", 
-		     token_list[t], token_list[c], yytext);
-		fail("unexpected token : %s \n", yytext);
+		printf("c %d, t %d, yytext %s\n", c, t, yytext);
+		fail("Expected token %s in input, got %s (at line %d).\n", 
+		     token_list+t, token_list+c, yylineno); 
 	}
 
 }
@@ -34,16 +44,17 @@ void init_parser(void)
 
 void yyparse(void)
 {
-	int t = yylex();
-
-	switch(t) {
-
-	case FOREACH:
-		foreach_expr();
-		break;
+	while(!feof(yyin)) {
+		int t = yylex();
+		switch(t) {
+			
+		case FOREACH:
+			foreach_expr();
+			break;
 		
-	default:
-		fail("garbage somewhere in input.\n");
+		default:
+			printf("%s", yytext);
+		}
 	}
 }
 
@@ -51,6 +62,7 @@ void yyparse(void)
 void foreach_expr(void)
 {
 	struct croma_block *b = alloc_and_insert_block();
+	b->name = strdup("foreach block"); /* FIXME : just to keep free_block() happy */
 
 	expect(LPAREN);
 
@@ -82,6 +94,8 @@ void foreach_expr(void)
 
 		p++;
 	}
+
+	free_block(b);
 }
 
 
@@ -111,16 +125,23 @@ void parse_arglist(struct croma_block *b)
 			fail("Unable to alloc memory for text %s\n", yytext);
 
 		int c = yylex();
-		if (c == RPAREN)
+		while (c == SPACES)
+			c = yylex();
+
+		switch(c) {
+		case WORD:
+			continue;
+			break;
+
+		case RPAREN:
 			return;
-		else if (c != COMMA) {
-			puts("Expected a comma in parameter list");
-			exit(-1);
+			break;
+
+		default:
+			fail("Unexpected token in argument list");
+			break;
 		}
 
-		expect(WORD);
-
-		
 	}
 
 //	*p++ = "\0";
