@@ -37,4 +37,16 @@ void free_block(struct croma_block *b)
 	free(b->contents);
 	free(b->name);
 	TAILQ_REMOVE(&blocks_head, b, blocks);
+	free(b);
+}
+
+void free_arg(struct croma_block *b, struct croma_arg *a)
+{
+	if (b == NULL)
+		return;
+
+	TAILQ_REMOVE(&b->args_head, a, params);
+	free(a->name);
+	free(a->value);
+	free(a);
 }

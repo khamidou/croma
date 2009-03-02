@@ -30,7 +30,7 @@ struct croma_block {
 };
 
 /*
-  blocks_head is our symbol tab.
+  blocks_head is our symbol table.
 */
 
 TAILQ_HEAD(croma_blocks_head, croma_block) blocks_head;
@@ -42,5 +42,6 @@ TAILQ_HEAD(croma_blocks_head, croma_block) blocks_head;
 struct croma_block* alloc_and_insert_block(void);
 struct croma_arg *alloc_and_insert_arg(struct croma_block *b);
 void free_block(struct croma_block *b);
+void free_arg(struct croma_block *b, struct croma_arg *a);
 
 #endif

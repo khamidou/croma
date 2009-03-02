@@ -66,10 +66,7 @@ void yyparse(void)
 
 void foreach_expr(void)
 {
-	struct croma_block *b = malloc(sizeof(struct croma_block));
-
-	if (b == NULL)
-		fail("Unable to alloc() memory");
+	struct croma_block *b = alloc_and_insert_block();
 
 	TAILQ_INIT(&b->args_head);
 	expect(LPAREN);
@@ -100,6 +97,7 @@ void foreach_expr(void)
 			c++;
 		}
 
+		free_arg(b, a);
 	}
 
 	free_block(b);
@@ -138,8 +136,6 @@ void parse_arglist(struct croma_block *b)
 			arg->value = strdup(yytext);
 			if (arg->value == NULL)
 				fail("Unable to allocate memory");
-			
-			continue;
 			break;
 
 		case RPAREN:
