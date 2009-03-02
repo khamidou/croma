@@ -61,21 +61,25 @@ void foreach_expr(void)
 	parse_block(b);
 
 	char **p = b->parameters;
-	char *c = b->contents;
-	if (c == NULL)
+
+	if (b->contents == NULL)
 		fail("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
 
-	while(strcmp(*p, "\0") != 0) {
-		while(c != '\0') {
-			if (*c == '$' && *c+1 == '$') {
-				printf("%s", p);
-			c++; /* skip them second '$' */
+	while(*p != NULL) {
+		char *c = b->contents;
+		int i = 0;
+
+		for(i = 0; i < b->contents_length && c != NULL; i++) {
+			if (*c == '$' && *(c+1) == '$') {
+				printf("%s", *p);
+				c++; /* skip the second '$' */
 			} else {
 				printf("%c", *c);
 			}
-			
+
 			c++;
 		}
+
 		p++;
 	}
 }
@@ -133,6 +137,7 @@ void parse_block(struct croma_block *b)
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
 	b->contents = malloc(8192);
+	b->contents_length = 0;
 
 	if (b->contents == NULL)
 		fail("Unable to alloc memory for input buffer", __FILE__, __LINE__);
@@ -147,6 +152,8 @@ void parse_block(struct croma_block *b)
 		i += strlen(yytext);
 		t = yylex();
 	}
+
+	b->contents_length = i;
 
 	return;
 	

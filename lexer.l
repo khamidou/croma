@@ -14,14 +14,18 @@ int yywrap()
 
 %}
 
+%s verbatim
+
 %%
 
 "(" 		{ return LPAREN;	}
 ")" 		{ return RPAREN;	}
-"{{" 		{ return LBRACKET;	}
-"}}" 		{ return RBRACKET;	}
+"{{" 		{ BEGIN(verbatim);	return LBRACKET;	}
+"}}" 		{ BEGIN(INITIAL);	return RBRACKET;	}
 ","             { return COMMA;		}
 "foreach"       { return FOREACH;	}
-[a-zA-Z0-9]+ 	{ return WORD;		}
 "$$" 		{ return DOLDOL;	}
-[ \t\n]+ 	/* { return SPACES;	} */
+
+[a-zA-Z0-9]+	{ return WORD;		}
+<verbatim>[ \t\n]+ { return SPACES;	}
+[ \t\n]+ /* otherwise eat up spaces */ { }
