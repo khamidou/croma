@@ -15,7 +15,8 @@ char *token_list[] = { "left parenthesis",
 		       "spaces",
 		       "comma",
 		       "quote",
-		       "foreach", NULL};
+		       "foreach", 
+		       "define", NULL};
 
 
 void expect(int t)
@@ -30,8 +31,9 @@ void expect(int t)
 	
 	if (c != t) {
 		printf("c %d, t %d, yytext %s\n", c, t, yytext);
-		fail("Expected token %s in input, got %s (at line %d).\n", 
-		     token_list+t, token_list+c, yylineno); 
+/*		fail("Expected token %s in input, got %s (at line %d).\n", 
+		     token_list+t, token_list+c, yylineno); */
+		fail("EPIC FAIL\n");
 	}
 
 }
@@ -51,7 +53,11 @@ void yyparse(void)
 		case FOREACH:
 			foreach_expr();
 			break;
-		
+
+		case DEFINE:
+			define_expr();
+			break;
+
 		default:
 			printf("%s", yytext);
 		}
@@ -98,6 +104,10 @@ void foreach_expr(void)
 	free_block(b);
 }
 
+void define_expr(void)
+{
+
+}
 
 void parse_arglist(struct croma_block *b)
 {
@@ -113,7 +123,10 @@ void parse_arglist(struct croma_block *b)
 
 	int i;
 
-	expect(WORD);
+	int c = yylex();
+
+	if (c == RPAREN)
+		return;
 
 	/* FIXME : use realloc to implement infinite length parameter
 	   lists
@@ -124,7 +137,8 @@ void parse_arglist(struct croma_block *b)
 		if (b->parameters[i] == NULL)
 			fail("Unable to alloc memory for text %s\n", yytext);
 
-		int c = yylex();
+		c = yylex();
+
 		while (c == SPACES)
 			c = yylex();
 

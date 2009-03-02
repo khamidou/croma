@@ -21,6 +21,10 @@ struct croma_block {
 	TAILQ_ENTRY(croma_block) blocks;
 };
 
+/*
+  blocks_head is our symbol tab.
+*/
+
 TAILQ_HEAD(croma_blocks_head, croma_block) blocks_head;
 
 /* this function inserts a block at the end of the queue.
