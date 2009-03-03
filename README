@@ -1,6 +1,6 @@
 This is croma, a macro processor
 
-Compiling croma:
+How to compile croma:
 	  Just type make in the croma source directory. This should build the croma executable.
 
 Using croma:
@@ -22,11 +22,10 @@ The croma language:
 	}}
 
 	This example will output :
-	     	     print "Hi, bill"
 
-		     print "Hi, marshall"
-
-		     print "Hi, kirk"
+	print "Hi, bill"
+	print "Hi, marshall"
+	print "Hi, kirk"
 
     
 
