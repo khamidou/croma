@@ -26,6 +26,6 @@ int yywrap()
 "define"	{ return DEFINE;	}
 "$$" 		{ return DOLDOL;	}
 [ \t\n]+ 	{ return SPACES;	}
-[a-zA-Z0-9,?!%*:,;#$^]+	{ return WORD;		}
+[a-zA-Z0-9,?!%*:,;#\"$^]+	{ return WORD;		}
 <<EOF>>		{ return -1;	}
 
