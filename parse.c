@@ -29,10 +29,8 @@ void expect(int t)
 	}
 	
 	if (c != t) {
-		printf("c %d, t %d, yytext %s\n", c, t, yytext);
-/*		fail("Expected token %s in input, got %s (at line %d).\n", 
-		     token_list+t, token_list+c, yylineno); */
-		fail("EPIC FAIL\n");
+		fail("Expected token %s in input, got %s (at line %d).\n", 
+		     token_list[t], token_list[c], yylineno);
 	}
 
 }
