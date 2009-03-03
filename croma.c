@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	if (argc == 2) {
 		yyin = fopen(argv[1], "r");
 		if (yyin == NULL)
-			fail("Unable to open file : %s");
+			fail("Unable to open file : %s\n", argv[1]);
 	}
 
 	init_parser();
