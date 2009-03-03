@@ -21,12 +21,11 @@ int yywrap()
 ")" 		{ return RPAREN;	}
 "{{" 		{ return LBRACKET;	}
 "}}" 		{ return RBRACKET;	}
-","             { return COMMA;		}
 "'"|"\\"		{ return QUOTE;		}
 "foreach"       { return FOREACH;	}
 "define"	{ return DEFINE;	}
 "$$" 		{ return DOLDOL;	}
 [ \t\n]+ 	{ return SPACES;	}
-[a-zA-Z0-9,?!%*:;$^]+	{ return WORD;		}
-
+[a-zA-Z0-9,?!%*:,;#$^]+	{ return WORD;		}
+<<EOF>>		{ return -1;	}
 

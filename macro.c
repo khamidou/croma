@@ -50,3 +50,30 @@ void free_arg(struct croma_block *b, struct croma_arg *a)
 	free(a->value);
 	free(a);
 }
+
+struct croma_block *lookup_symbol(char *name)
+{
+	struct croma_block *b;
+	TAILQ_FOREACH(b, &blocks_head, blocks) {
+		if (strcmp(name, b->name) == 0)
+			return b;
+	}
+
+	return NULL;
+}
+
+struct croma_arg *lookup_arg(struct croma_block *b, char *name)
+{
+	if (b == NULL)
+		return NULL;
+	
+	struct croma_arg *a;
+
+	TAILQ_FOREACH(a, &b->args_head, params) {
+		if (strcmp(name, a->name) == 0)
+			return a;
+	}
+
+	return NULL;
+	
+}

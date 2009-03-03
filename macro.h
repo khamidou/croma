@@ -43,5 +43,7 @@ struct croma_block* alloc_and_insert_block(void);
 struct croma_arg *alloc_and_insert_arg(struct croma_block *b);
 void free_block(struct croma_block *b);
 void free_arg(struct croma_block *b, struct croma_arg *a);
+struct croma_block *lookup_symbol(char *name);
+struct croma_arg *lookup_arg(struct croma_block *b, char *name);
 
 #endif

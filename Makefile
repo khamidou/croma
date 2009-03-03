@@ -25,3 +25,7 @@ clean:
 	rm *.o
 	rm *~
 	rm croma
+
+tests: croma
+	./croma tests/simple
+	./croma tests/test.c
