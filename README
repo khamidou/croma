@@ -1,0 +1,60 @@
+This is croma, a macro processor
+
+Compiling croma:
+	  Just type make in the croma source directory. This should build the croma executable.
+
+Using croma:
+      croma reads source code either from standard input or from a file passed as argument. It prints on
+      stdout the processed document.
+      
+The croma language:
+    Croma is quite different from languages like cpp or m4. Croma uses blocks to delimitate macros instead
+    of considering that a macro definition ends at the end of a line.
+    For the moment, croma recognizes only one syntactic form : foreach.
+    foreach takes and infinite number of parameters separated by spaces (grouping will be implemented soon)
+    and executes the block following it, successively binding to the variable $$ the value of the current
+    word.
+    
+    example:
+	foreach(bill marshall kirk)
+	{{
+		print "Hi, $$"
+	}}
+
+	This example will output :
+	     	     print "Hi, bill"
+
+		     print "Hi, marshall"
+
+		     print "Hi, kirk"
+
+    
+
+License:
+
+  Copyright (c) 2009 Karim Hamidou.
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the name of the University nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+ 
+  THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
