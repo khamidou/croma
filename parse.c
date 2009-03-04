@@ -18,6 +18,8 @@ char *token_list[] = { "left parenthesis",
 		       "foreach", 
 		       "define", NULL};
 
+char *doldol = ""; /* The value assigned to the '$$' variable. */
+
 void expect(int t)
 {
 	int c = yylex();
@@ -73,7 +75,7 @@ void foreach_expr(void)
 	TAILQ_INIT(&b->args_head);
 	expect(LPAREN);
 
-	parse_arglist(b);
+	parse_arglist(b, yylex, save_foreach_arg);
 
 	expect(LBRACKET);
 
@@ -113,31 +115,31 @@ void define_expr(void)
 	b->name = strdup(yytext);
 
 	expect(LPAREN);
-	parse_arglist(b);
-	
+	parse_arglist(b, yylex, save_define_arg);
+
+	parse_block(b);
 }
 
-void parse_arglist(struct croma_block *b)
+/*
+  Instead of creating a using a different function each time we have to parse an argument list,
+  we pass instead to parse_arglist() a pointer to the function that will do the job.
+ */
+void parse_arglist(struct croma_block *b, int (*tokenize)(void), void (*f) (struct croma_block *b))
 {
 	if (b == NULL)
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
 	int c = yylex();
 
-	struct croma_arg * arg;
-
 	while(c != RPAREN)
 	{
 		while (c == SPACES) {
-			c = yylex();
+			c = tokenize();
 		}
 
 		switch(c) {
 		case WORD:
-			arg = alloc_and_insert_arg(b);
-			arg->value = strdup(yytext);
-			if (arg->value == NULL)
-				fail("Unable to allocate memory");
+			(*f)(b);
 			break;
 
 		case RPAREN:
@@ -149,10 +151,31 @@ void parse_arglist(struct croma_block *b)
 			break;
 		}
 
-		c = yylex();
+		c = tokenize();
 	}
 
 }
+
+void save_foreach_arg(struct croma_block *b)
+{
+	struct croma_arg * arg;
+
+	arg = alloc_and_insert_arg(b);
+	arg->value = strdup(yytext);
+	if (arg->value == NULL)
+		fail("Unable to allocate memory");
+}
+
+void save_define_arg(struct croma_block *b)
+{
+	struct croma_arg * arg;
+
+	arg = alloc_and_insert_arg(b);
+	arg->value = strdup(yytext);
+	if (arg->value == NULL)
+		fail("Unable to allocate memory");
+}
+
 
 void parse_block(struct croma_block *b)
 {
@@ -187,6 +210,8 @@ void parse_block(struct croma_block *b)
 /*
   This routine extracts a word from a string, without modifying it.
  */
+
+
 char *extract_word(char *s)
 {
 	while(*s == ' ' || *s == '\t' || *s == '\n')
@@ -194,16 +219,24 @@ char *extract_word(char *s)
 
 	char *wend = s;
 
-	while(*wend != ' ' || *wend != '\t' || wend != '\n')
+	while(*wend != ' ' && *wend != '\t' && *wend != '\n' && *wend !='(' && *wend != ')')
 		wend++;
 
-	char *r = malloc((wend - s) * sizeof(char));
+	wend--; /* Get rid of the last (unwanted) character */
+
+	if (wend == s)
+		return NULL;
+
+	int len = (wend - s);
+	char *r = calloc(len + 1, sizeof(char));
+	char *p = r;
 
 	wend = s;
 
+	int i;
 	/* Copy the contents of the word in r. */
-	while(*wend != ' ' || *wend != '\t' || wend != '\n')
-		*r++ = *wend++;
+	for(i = 0; i <= len; i++)
+		*p++ = *wend++;
 
 	return r;
 }
@@ -255,16 +288,17 @@ char *replace_arguments(struct croma_block *b, char *t)
 	
 }
 
-char *expand_macro(char *text)
+char *expand_macro(char *s)
 {
-	if (text == NULL)
+	if (s == NULL)
 		return NULL;
 
 	char *buf = malloc(8192);
-	char *s = strdup(text);
-	char *p = strtok(s," \t\n");
+	char *ss = s;  /* Used only to compute the length of the buffer */
+	int buflen = s - ss;
 
 	struct croma_block *b;
+
 
 	int i = 0;
 
@@ -272,11 +306,19 @@ char *expand_macro(char *text)
 		fail("Unable to allocate memory");
 
 	
-	while(p != NULL) {
-		b = lookup_symbol(p);
+	while(*s != '\0' && buflen < 8192) {
+
+		while(*s == ' ' || *s == '\t' || *s == '\n')
+			*buf++ = *s++;
+
+		char *name = extract_word(s);		
+		b = lookup_symbol(name);
+		if (b != NULL) {
+			
+		}
 		/* FIXME : implement argument list parsing */
-		p = strtok(NULL, " \t\n");
-	}
+		buflen = s - ss;
+	} 
 	    
 	
 }
