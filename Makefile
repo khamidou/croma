@@ -1,4 +1,4 @@
-OBJS=croma.o lex.yy.o parse.o macro.o errors.o
+OBJS=croma.o lex.yy.o lex.mlex.o parse.o macro.o errors.o
 CFLAGS=-c -g
 LDFLAGS=-o croma
 
@@ -17,6 +17,10 @@ parse.o: parse.c parse.h
 lex.yy.o: lexer.l
 	lex lexer.l
 	$(CC) $(CFLAGS) lex.yy.c
+
+lex.mlex.o: mlexer.l
+	lex --prefix=mlex mlexer.l
+	$(CC) $(CFLAGS) lex.mlex.c
 
 errors.o: errors.c errors.h	
 	$(CC) $(CFLAGS) errors.c

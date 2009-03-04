@@ -16,6 +16,7 @@ void yyparse(void);
 
 void foreach_expr(void);
 void define_expr(void);
+int extract_word(char *s);
 void parse_arglist(struct croma_block *b, int (*tokenize)(void), void (*f) (struct croma_block *b));
 void parse_block(struct croma_block *b);
 

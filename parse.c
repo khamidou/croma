@@ -6,6 +6,9 @@ extern char *yytext;
 extern int yylineno;
 extern FILE *yyin;
 
+extern int mlexlex();
+extern char *mlextext;
+
 char *token_list[] = { "left parenthesis", 
 		       "right parenthesis", 
 		       "{{", 
@@ -176,6 +179,12 @@ void save_define_arg(struct croma_block *b)
 		fail("Unable to allocate memory");
 }
 
+void bind_macro_arg(struct croma_block *b)
+{
+	/*
+	  Note : this code assumes that every new element is inserted at the tail.
+	 */
+}
 
 void parse_block(struct croma_block *b)
 {
@@ -208,42 +217,9 @@ void parse_block(struct croma_block *b)
 }
 
 /*
-  This routine extracts a word from a string, without modifying it.
- */
-
-
-char *extract_word(char *s)
-{
-	while(*s == ' ' || *s == '\t' || *s == '\n')
-		s++;
-
-	char *wend = s;
-
-	while(*wend != ' ' && *wend != '\t' && *wend != '\n' && *wend !='(' && *wend != ')')
-		wend++;
-
-	wend--; /* Get rid of the last (unwanted) character */
-
-	if (wend == s)
-		return NULL;
-
-	int len = (wend - s);
-	char *r = calloc(len + 1, sizeof(char));
-	char *p = r;
-
-	wend = s;
-
-	int i;
-	/* Copy the contents of the word in r. */
-	for(i = 0; i <= len; i++)
-		*p++ = *wend++;
-
-	return r;
-}
-
-/*
   Replace arguments replaces all the references to the arguments
   of b in t by their values.
+  It occurs only in memory.
  */
 
 char *replace_arguments(struct croma_block *b, char *t)
@@ -294,30 +270,27 @@ char *expand_macro(char *s)
 		return NULL;
 
 	char *buf = malloc(8192);
-	char *ss = s;  /* Used only to compute the length of the buffer */
-	int buflen = s - ss;
-
 	struct croma_block *b;
-
 
 	int i = 0;
 
 	if (b == NULL)
 		fail("Unable to allocate memory");
 
-	
-	while(*s != '\0' && buflen < 8192) {
+	int c = mlexlex();
 
-		while(*s == ' ' || *s == '\t' || *s == '\n')
-			*buf++ = *s++;
+	while(c != -1 && i < 8192) {
+		
+		switch(c) {
 
-		char *name = extract_word(s);		
+		case WORD:
+		char *name = extract_word(mlextext);		
 		b = lookup_symbol(name);
 		if (b != NULL) {
 			
 		}
-		/* FIXME : implement argument list parsing */
-		buflen = s - ss;
+		break;
+
 	} 
 	    
 	
