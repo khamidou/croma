@@ -1,4 +1,5 @@
 #include <string.h>
+#include "dynstring.h"
 #include "parse.h"
 
 extern char *strndup (__const char *__string, size_t __n);
@@ -43,6 +44,7 @@ void expect(int t)
 void init_parser(void)
 {
 	TAILQ_INIT(&blocks_head);
+	init_dynstring();
 }
 
 
