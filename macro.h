@@ -22,10 +22,10 @@ struct croma_arg {
 
 struct croma_block {
 	char *name;
-//	char **parameters;
-	char *contents;
+	//char *contents;
 	int contents_length;
 	TAILQ_HEAD(croma_args_head, croma_arg) args_head;
+	TAILQ_HEAD(dstring_heads, dstring) dstrings_head;
 	TAILQ_ENTRY(croma_block) blocks;
 };
 

@@ -13,6 +13,7 @@ struct croma_block* alloc_and_insert_block(void)
 
 	TAILQ_INSERT_TAIL(&blocks_head, block, blocks);
 	TAILQ_INIT(&block->args_head);
+	TAILQ_INIT(&block->strings_head);
 
 	return block;
 }

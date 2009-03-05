@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "queue.h"
+#include "macro.h"
 
 struct dstring {
 	char *p;
@@ -10,13 +11,11 @@ struct dstring {
 	TAILQ_ENTRY(dstring) strings;
 };
 
-TAILQ_HEAD(dstring_heads, dstring) dstrings_head;
-
-void init_dynstring(void);
-struct dstring* alloc_and_insert_string(size_t len);
-struct dstring* alloc_after(struct dstring *before);
-void free_dstring(struct dstring *s);
-void free_all_dstrings(void);
+void init_dynstring(struct croma_block *b);
+struct dstring* alloc_and_insert_string(struct croma_block *b, size_t len);
+struct dstring* alloc_after(struct croma_block *b, struct dstring *before);
+void free_dstring(struct croma_block *b, struct dstring *s);
+void free_all_dstrings(struct croma_block *b);
 
 struct dstring* break_after(struct dstring *before, char *s);
 
