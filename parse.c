@@ -44,7 +44,6 @@ void expect(int t)
 void init_parser(void)
 {
 	TAILQ_INIT(&blocks_head);
-	init_dynstring();
 }
 
 
@@ -87,26 +86,27 @@ void foreach_expr(void)
 	parse_block(b);
 
 	struct croma_arg *a;
-
-	if (b->contents == NULL)
-		fail("the impossible happened : b->contents == NULL !, file: %s, line %d", __FILE__, __LINE__);	
+	struct dstring *s;
 
 	TAILQ_FOREACH(a, &b->args_head, params) {
-		char *c = b->contents;
-		int i = 0;
-
-		for(i = 0; i < b->contents_length && c != NULL; i++) {
-			if (*c == '$' && *(c+1) == '$') {
-				printf("%s", a->value);
-				c++; /* skip the second '$' */
-			} else {
-				printf("%c", *c);
+		TAILQ_FOREACH(s, &b->dstrings_head, strings) {
+			char *c = s->contents;
+			int i = 0;
+			
+			for(i = 0; i < s->length && c != NULL; i++) {
+				if (*c == '$' && *(c+1) == '$') {
+					printf("%s", a->value);
+					c++; 			/* skip the second '$' */
+				
+				} else {
+					printf("%c", *c);
+				}
+				c++;
 			}
 
-			c++;
+			free_arg(b, a);
 		}
 
-		free_arg(b, a);
 	}
 
 	free_block(b);
@@ -195,11 +195,11 @@ void parse_block(struct croma_block *b)
 	if (b == NULL) 
 		fail("the impossible happened : b == NULL !, file: %s, line %d", __FILE__, __LINE__);
 
-	b->contents = malloc(8192);
-	b->contents_length = 0;
+	struct dstring *s = alloc_and_insert_string(b, 8192);
 
-	if (b->contents == NULL)
-		fail("Unable to alloc memory for input buffer", __FILE__, __LINE__);
+	struct croma_block *defblock; /* the address of a block defining a macro. */
+
+	s->length = 0;
 
 	/* Copy the whole buffer in b->contents.
 	   FIXME: expand macros before copying contents.
@@ -207,12 +207,20 @@ void parse_block(struct croma_block *b)
 	int t = yylex();
 
 	while (t != RBRACKET && i < 8192) {
-		strncat(b->contents, yytext, 8192 - i);
+		switch(t) {
+		case WORD:
+			defblock = lookup_symbol(yytext);
+
+			if (defblock != NULL) {
+				struct croma_block *env = copy_block(defblock);
+			}
+		}
+		strncat(s->contents, yytext, 8192 - i);
 		i += strlen(yytext);
 		t = yylex();
 	}
 
-	b->contents_length = i;
+	s->length = i;
 
 	return;
 	
@@ -226,43 +234,43 @@ void parse_block(struct croma_block *b)
 
 char *replace_arguments(struct croma_block *b, char *t)
 {
-	if (b == NULL)
-		return;
+/* 	if (b == NULL) */
+/* 		return; */
 
-	char *buf = calloc(8192, sizeof(char));
-	char *s = strdup(t);
-	char *ss = s;  /* Used only to compute the number of elements copied in buf. */
-	char *argname;
-	int buflen = s - ss;
-	struct croma_arg * arg;
+/* 	char *buf = calloc(8192, sizeof(char)); */
+/* 	char *s = strdup(t); */
+/* 	char *ss = s;  /\* Used only to compute the number of elements copied in buf. *\/ */
+/* 	char *argname; */
+/* 	int buflen = s - ss; */
+/* 	struct croma_arg * arg; */
 
-	while(*s != '\0' && buflen < 8192) {
+/* 	while(*s != '\0' && buflen < 8192) { */
 
-		while(*s == ' ' || *s == '\t' || *s == '\n')
-			*buf++ = *s++;
+/* 		while(*s == ' ' || *s == '\t' || *s == '\n') */
+/* 			*buf++ = *s++; */
 		
-		argname = extract_word(s);
-		arg = lookup_arg(b, argname);
+/* 		argname = extract_word(s); */
+/* 		arg = lookup_arg(b, argname); */
 
-		if (arg != NULL && arg->value != NULL) {
+/* 		if (arg != NULL && arg->value != NULL) { */
 
-			strncat(buf, arg->value, 8192 - buflen);
+/* 			strncat(buf, arg->value, 8192 - buflen); */
 
-			/* Don't forget to increment the pointers by the number
-			   of bytes copied 
-			*/
+/* 			/\* Don't forget to increment the pointers by the number */
+/* 			   of bytes copied  */
+/* 			*\/ */
 
-			s += strlen(arg->value);
-			buf += strlen(arg->value);
+/* 			s += strlen(arg->value); */
+/* 			buf += strlen(arg->value); */
 
-		} else {
-			/* If the value is not found, copy the word into the buffer. */
-			while(*s != ' ' || *s != '\t' || *s != '\n')
-				*buf++ = *s++;		       
-		}
+/* 		} else { */
+/* 			/\* If the value is not found, copy the word into the buffer. *\/ */
+/* 			while(*s != ' ' || *s != '\t' || *s != '\n') */
+/* 				*buf++ = *s++;		        */
+/* 		} */
 
-		buflen = s - ss;
-	}
+/* 		buflen = s - ss; */
+/* 	} */
 	
 }
 
@@ -273,6 +281,7 @@ char *expand_macro(char *s)
 
 	char *buf = malloc(8192);
 	struct croma_block *b;
+	char *name;
 
 	int i = 0;
 
@@ -286,12 +295,14 @@ char *expand_macro(char *s)
 		switch(c) {
 
 		case WORD:
-		char *name = extract_word(mlextext);		
-		b = lookup_symbol(name);
-		if (b != NULL) {
-			
+			/*name = extract_word(mlextext);		
+			b = lookup_symbol(name);
+			if (b != NULL) {
+				
+			}*/
+			break;
 		}
-		break;
+
 
 	} 
 	    

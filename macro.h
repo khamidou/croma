@@ -2,8 +2,17 @@
 #define __CROMA_MACRO__
 
 #include <stdlib.h>
+#include <string.h>
 #include "errors.h"
 #include "queue.h"
+#include "dynstring.h"
+
+
+struct croma_arg {
+	char *name;
+	char *value;
+	TAILQ_ENTRY(croma_arg) params;
+};
 
 /*
   A block is the memory representation of a {{ }} block, along with its 
@@ -12,18 +21,8 @@
 
 */
 
-#include "queue.h"
-
-struct croma_arg {
-	char *name;
-	char *value;
-	TAILQ_ENTRY(croma_arg) params;
-};
-
 struct croma_block {
 	char *name;
-	//char *contents;
-	int contents_length;
 	TAILQ_HEAD(croma_args_head, croma_arg) args_head;
 	TAILQ_HEAD(dstring_heads, dstring) dstrings_head;
 	TAILQ_ENTRY(croma_block) blocks;
@@ -41,6 +40,8 @@ TAILQ_HEAD(croma_blocks_head, croma_block) blocks_head;
 
 struct croma_block* alloc_and_insert_block(void);
 struct croma_arg *alloc_and_insert_arg(struct croma_block *b);
+struct croma_block* copy_block(struct croma_block *b);
+struct croma_arg* copy_args(struct croma_block *dest, struct croma_block *src);
 void free_block(struct croma_block *b);
 void free_arg(struct croma_block *b, struct croma_arg *a);
 struct croma_block *lookup_symbol(char *name);

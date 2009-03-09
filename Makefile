@@ -1,4 +1,4 @@
-OBJS=croma.o lex.yy.o lex.mlex.o parse.o macro.o errors.o
+OBJS=croma.o lex.yy.o lex.mlex.o parse.o macro.o errors.o dynstring.o
 CFLAGS=-c -g
 LDFLAGS=-o croma
 
@@ -24,6 +24,9 @@ lex.mlex.o: mlexer.l
 
 errors.o: errors.c errors.h	
 	$(CC) $(CFLAGS) errors.c
+
+dynstring.o: dynstring.c dynstring.h
+	$(CC) $(CFLAGS) dynstring.c
 
 clean:
 	rm *.o
