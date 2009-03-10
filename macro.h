@@ -44,6 +44,7 @@ struct croma_block* copy_block(struct croma_block *b);
 struct croma_arg* copy_args(struct croma_block *dest, struct croma_block *src);
 void free_block(struct croma_block *b);
 void free_arg(struct croma_block *b, struct croma_arg *a);
+void free_args(struct croma_block *b);
 struct croma_block *lookup_symbol(char *name);
 struct croma_arg *lookup_arg(struct croma_block *b, char *name);
 

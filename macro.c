@@ -37,6 +37,7 @@ void free_block(struct croma_block *b)
 
 	free_all_dstrings(b);
 	free(b->name);
+	free_args(b);
 	TAILQ_REMOVE(&blocks_head, b, blocks);
 	free(b);
 }
@@ -96,6 +97,17 @@ void free_arg(struct croma_block *b, struct croma_arg *a)
 	free(a->name);
 	free(a->value);
 	free(a);
+}
+
+void free_args(struct croma_block *b)
+{
+	if (b == NULL)
+		return;
+
+	struct croma_arg *a;
+	TAILQ_FOREACH(a, &b->args_head, params) {
+		free_arg(b, a);
+	}
 }
 
 struct croma_block *lookup_symbol(char *name)

@@ -181,12 +181,6 @@ void save_define_arg(struct croma_block *b)
 		fail("Unable to allocate memory");
 }
 
-void bind_macro_arg(struct croma_block *b)
-{
-	/*
-	  Note : this code assumes that every new element is inserted at the tail.
-	 */
-}
 
 void parse_block(struct croma_block *b)
 {
@@ -201,18 +195,31 @@ void parse_block(struct croma_block *b)
 
 	s->length = 0;
 
-	/* Copy the whole buffer in b->contents.
-	   FIXME: expand macros before copying contents.
-	 */
 	int t = yylex();
 
 	while (t != RBRACKET && i < 8192) {
 		switch(t) {
 		case WORD:
 			defblock = lookup_symbol(yytext);
-
+			
 			if (defblock != NULL) {
 				struct croma_block *env = copy_block(defblock);
+				if (env == NULL)
+					fail("Unable to allocate memory for macro environment");
+
+				
+				expect(LPAREN);
+
+				struct croma_arg *a;
+				TAILQ_FOREACH(a, &env->args_head, params) {
+					t = yylex();
+					if (t == RPAREN)
+						break;
+
+					a->value = strdup(yytext);
+				}
+
+				expand_macro(env);
 			}
 		}
 		strncat(s->contents, yytext, 8192 - i);
@@ -223,66 +230,17 @@ void parse_block(struct croma_block *b)
 	s->length = i;
 
 	return;
-	
 }
 
-/*
-  Replace arguments replaces all the references to the arguments
-  of b in t by their values.
-  It occurs only in memory.
- */
-
-char *replace_arguments(struct croma_block *b, char *t)
+char *expand_macro(struct croma_block *b)
 {
-/* 	if (b == NULL) */
-/* 		return; */
-
-/* 	char *buf = calloc(8192, sizeof(char)); */
-/* 	char *s = strdup(t); */
-/* 	char *ss = s;  /\* Used only to compute the number of elements copied in buf. *\/ */
-/* 	char *argname; */
-/* 	int buflen = s - ss; */
-/* 	struct croma_arg * arg; */
-
-/* 	while(*s != '\0' && buflen < 8192) { */
-
-/* 		while(*s == ' ' || *s == '\t' || *s == '\n') */
-/* 			*buf++ = *s++; */
-		
-/* 		argname = extract_word(s); */
-/* 		arg = lookup_arg(b, argname); */
-
-/* 		if (arg != NULL && arg->value != NULL) { */
-
-/* 			strncat(buf, arg->value, 8192 - buflen); */
-
-/* 			/\* Don't forget to increment the pointers by the number */
-/* 			   of bytes copied  */
-/* 			*\/ */
-
-/* 			s += strlen(arg->value); */
-/* 			buf += strlen(arg->value); */
-
-/* 		} else { */
-/* 			/\* If the value is not found, copy the word into the buffer. *\/ */
-/* 			while(*s != ' ' || *s != '\t' || *s != '\n') */
-/* 				*buf++ = *s++;		        */
-/* 		} */
-
-/* 		buflen = s - ss; */
-/* 	} */
-	
-}
-
-char *expand_macro(char *s)
-{
-	if (s == NULL)
+	if (b == NULL)
 		return NULL;
 
 	char *buf = malloc(8192);
-	struct croma_block *b;
 	char *name;
-
+	struct croma_block *ab; /* In case of a macro called inside another macro. */
+	struct croma_arg *a;
 	int i = 0;
 
 	if (b == NULL)
@@ -295,12 +253,17 @@ char *expand_macro(char *s)
 		switch(c) {
 
 		case WORD:
-			/*name = extract_word(mlextext);		
-			b = lookup_symbol(name);
-			if (b != NULL) {
+			if ((a = lookup_arg(b, mlextext)) != NULL) {
+				printf("%s", a->value);
+			} else if ((b = lookup_symbol(mlextext)) != NULL) {
 				
-			}*/
+			} else {
+				printf("%s", mlextext);
+			}
 			break;
+
+		default:
+			printf("%s", mlextext);
 		}
 
 
