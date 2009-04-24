@@ -197,33 +197,12 @@ void parse_block(struct croma_block *b)
 
 	int t = yylex();
 
-	while (t != RBRACKET && i < 8192) {
+	while (t != RBRACKET) {
 		switch(t) {
 		case WORD:
-			defblock = lookup_symbol(yytext);
 			
-			if (defblock != NULL) {
-				struct croma_block *env = copy_block(defblock);
-				if (env == NULL)
-					fail("Unable to allocate memory for macro environment");
-
-				
-				expect(LPAREN);
-
-				struct croma_arg *a;
-				TAILQ_FOREACH(a, &env->args_head, params) {
-					t = yylex();
-					if (t == RPAREN)
-						break;
-
-					a->value = strdup(yytext);
-				}
-
-				expand_macro(env);
-			}
 		}
-		strncat(s->contents, yytext, 8192 - i);
-		i += strlen(yytext);
+
 		t = yylex();
 	}
 

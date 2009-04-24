@@ -8,7 +8,14 @@
 #include "dynstring.h"
 
 
+/*
+  croma_arg is the structure representing a macro in memory.
+ */
+
+enum { T_STRING, T_ARG };
+
 struct croma_arg {
+	int type;	/*  T_STRING, T_ARG, ... */
 	char *name;
 	char *value;
 	TAILQ_ENTRY(croma_arg) params;
